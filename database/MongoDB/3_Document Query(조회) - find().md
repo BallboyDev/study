@@ -3,7 +3,7 @@
 - option
     - query : document
         - Optional. 도큐먼트를 조회할 때 기준을 정합니다. 기준이 없이 컬렉션에 있는 모든 도큐먼트를 조회 할 때는 이 매개변수를 비우거나 {}를 전달하세요
-    - project : document
+    - projection : document
         - Optional, 도큐먼를 조회 할 때 보여질 field를 지정합니다.
 
 ### 반환값(return)
@@ -99,4 +99,36 @@
 ~~~
 
 ## projection
-- 
+- projection은 쿼리의 결과값에서 보여질 field를 정의 합니다.
+~~~
+// tempCol 의 title과 content만 조회
+> db.tempCol.find({}, {"_id":false, "title":true, "content": true})
+~~~
+
+### $slice 연산자
+- projection 연산자 중 $slice 연산자는 Embedded Document 배열을 읽을 때 limit 설정을 합니다.
+~~~
+// title 값이 article03 인 Document에서 comments은 하나만 보이게 출력
+> db.tempCol.find({"title":"article03"}, {comments: {$slice: 1}})
+~~~
+
+### $elemMatch 연산자
+- query 연산자 중 $elemMatch와 사용법은 같습니다. 단 역할이 다릅니다.
+~~~
+// comments중 "Charlie"가 작성한 덧글이 있는 Document중 제목, 그리고 Charlie의 덧글만 조회
+> db.tempCol.find(
+    {
+        "comments": {
+            $elemMatch: {"name":"Charlie"}
+        }
+    }, 
+    {
+        "title": true,
+        "comments": {
+            $elemMatch :{"name":"Charlie"}
+        },
+        "comments.name":true,
+        "comments.message":true
+    }
+)
+~~~
